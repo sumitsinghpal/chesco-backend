@@ -3,13 +3,3 @@ flask-cors==4.0.0
 requests==2.31.0
 beautifulsoup4==4.12.2
 gunicorn==21.2.0
-```
-
----
-
-### **File 3: `.env`** (Optional - for local testing)
-
-Save as `.env` (no .txt, just `.env`):
-```
-FLASK_ENV=development
-PORT=5000
