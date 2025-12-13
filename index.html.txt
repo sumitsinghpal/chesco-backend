@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CHESCO Research Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // ⚙️ CONFIGURATION - CHANGE YOUR BACKEND URL HERE!
+        const API_URL = "https://chesco-backend.onrender.com/api"; // 👈 CHANGE THIS TO YOUR RENDER URL
+
+        function App() {
+            const [searchQuery, setSearchQuery] = useState('');
+            const [yearFilter, setYearFilter] = useState('all');
+            const [results, setResults] = useState([]);
+            const [isLoading, setIsLoading] = useState(false);
+
+            useEffect(() => {
+                const fetchResults = async () => {
+                    setIsLoading(true);
+                    try {
+                        const response = await fetch(`${API_URL}/search?q=${searchQuery}&year=${yearFilter}`);
+                        const data = await response.json();
+                        setResults(data.results || []);
+                    } catch (error) {
+                        console.error('Error:', error);
+                        setResults([]);
+                    }
+                    setIsLoading(false);
+                };
+
+                const timer = setTimeout(fetchResults, 500);
+                return () => clearTimeout(timer);
+            }, [searchQuery, yearFilter]);
+
+            return (
+                <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+                    {/* Header */}
+                    <header className="bg-white shadow-sm border-b">
+                        <div className="max-w-7xl mx-auto px-4 py-6">
+                            <h1 className="text-2xl font-bold">Center for Hybrid Electric Systems</h1>
+                            <p className="text-sm text-gray-600">Cottbus</p>
+                        </div>
+                    </header>
+
+                    <main className="max-w-7xl mx-auto px-4 py-8">
+                        {/* Search Box */}
+                        <div className="bg-white rounded-lg shadow p-6 mb-8">
+                            <input
+                                type="text"
+                                placeholder="Search electric motor publications..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                            />
+                            <select
+                                value={yearFilter}
+                                onChange={(e) => setYearFilter(e.target.value)}
+                                className="mt-4 px-4 py-2 border rounded-lg"
+                            >
+                                <option value="all">All Years</option>
+                                <option value="2024">2024</option>
+                                <option value="2023">2023</option>
+                                <option value="2022">2022</option>
+                            </select>
+                        </div>
+
+                        {/* Results */}
+                        <div>
+                            <h3 className="text-lg font-semibold mb-4">
+                                {isLoading ? 'Searching...' : `${results.length} Results`}
+                            </h3>
+                            
+                            {isLoading ? (
+                                <div className="text-center py-12">Loading...</div>
+                            ) : (
+                                <div className="space-y-4">
+                                    {results.map((pub, i) => (
+                                        <div key={i} className="bg-white rounded-lg shadow p-6">
+                                            <h4 className="text-lg font-semibold mb-2">{pub.title}</h4>
+                                            <p className="text-sm text-gray-600 mb-2">{pub.authors} • {pub.year}</p>
+                                            <p className="text-sm text-gray-700 italic mb-3">{pub.journal}</p>
+                                            <p className="text-gray-600 mb-4">{pub.abstract}</p>
+                                            <div className="flex justify-between items-center pt-4 border-t">
+                                                <span className="text-sm">{pub.citations} citations</span>
+                                                <a href={pub.url} target="_blank" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                                                    View Page
+                                                </a>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </main>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
