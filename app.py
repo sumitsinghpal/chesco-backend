@@ -99,15 +99,7 @@ def search():
 
 @app.route('/api/health', methods=['GET'])
 def health():
-    return jsonify({'status': 'ok'})
+    return jsonify({'status': 'ok', 'message': 'CHESCO Backend is running'})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
-```
-
-### **File 2: `requirements.txt`** (Save as .txt file)
-```
-flask==3.0.0
-flask-cors==4.0.0
-requests==2.31.0
-beautifulsoup4==4.12.2
