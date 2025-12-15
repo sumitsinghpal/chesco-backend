@@ -376,6 +376,54 @@ def home():
             'sources': '/api/sources'
         }
     })
+# ============================================
+# NEWS API - Latest Electric Motor News
+# ============================================
+def fetch_electric_motor_news(limit=5):
+    """Fetch latest news about electric motors"""
+    try:
+        # Using NewsAPI (free tier: 100 requests/day)
+        # Alternative: We'll use RSS feeds from reliable sources
+        
+        # Method 1: Google News RSS (Free, no API key needed)
+        import feedparser
+        
+        rss_url = "https://news.google.com/rss/search?q=electric+motor+OR+electric+vehicle+motor+OR+EV+motor&hl=en-US&gl=US&ceid=US:en"
+        
+        feed = feedparser.parse(rss_url)
+        
+        news_items = []
+        for entry in feed.entries[:limit]:
+            # Extract date
+            published = entry.get('published', '')
+            
+            news_items.append({
+                'title': entry.get('title', ''),
+                'description': entry.get('summary', ''),
+                'url': entry.get('link', '#'),
+                'source': entry.get('source', {}).get('title', 'Google News'),
+                'published': published
+            })
+        
+        return news_items
+        
+    except Exception as e:
+        print(f"Error fetching news: {e}")
+        return []
 
+@app.route('/api/news', methods=['GET'])
+def news():
+    """Get latest electric motor news"""
+    limit = int(request.args.get('limit', 5))
+    
+    news_items = fetch_electric_motor_news(limit)
+    
+    return jsonify({
+        'success': True,
+        'count': len(news_items),
+        'news': news_items
+    })
+    
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
+
