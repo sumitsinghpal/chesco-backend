@@ -16,7 +16,7 @@ SERPAPI_KEY = os.environ.get('SERPAPI_KEY', 'e5a02319422293028e05ee9f5a634d9d2c8
 SEMANTIC_SCHOLAR_KEY = os.environ.get('SEMANTIC_SCHOLAR_KEY', 'BOWwvouuaF8LHnmtbWvVL1g7onkJ2Bn4deKTwvdd')
 
 # ============================================
-# SEMANTIC SCHOLAR 
+# SEMANTIC SCHOLAR (FREE - 10,000/month)
 # ============================================
 def search_semantic_scholar(query, year_filter='all', limit=5):
     """Search Semantic Scholar API"""
@@ -44,17 +44,35 @@ def search_semantic_scholar(query, year_filter='all', limit=5):
         parsed_results = []
         
         for paper in data.get('data', []):
-            authors = ', '.join([a.get('name', '') for a in paper.get('authors', [])])
+            # Safely get abstract (handle None)
+            abstract = paper.get('abstract')
+            if abstract is None:
+                abstract = 'No abstract available'
+            
+            # Safely get authors
+            authors_list = paper.get('authors', [])
+            if authors_list:
+                authors = ', '.join([a.get('name', '') for a in authors_list if a.get('name')])
+            else:
+                authors = 'Unknown'
+            
+            # Safely get publication types
+            pub_types = paper.get('publicationTypes', [])
+            if pub_types and 'Conference' in pub_types:
+                pub_type = 'Conference Paper'
+            else:
+                pub_type = 'Journal Article'
+            
             parsed_results.append({
-                'title': paper.get('title', ''),
+                'title': paper.get('title', 'Untitled'),
                 'authors': authors,
                 'year': str(paper.get('year', '')),
                 'journal': paper.get('venue', ''),
-                'abstract': paper.get('abstract', 'No abstract available'),
+                'abstract': abstract,
                 'citations': paper.get('citationCount', 0),
                 'url': paper.get('url', '#'),
                 'source': 'Semantic Scholar',
-                'type': 'Conference Paper' if 'Conference' in paper.get('publicationTypes', []) else 'Journal Article'
+                'type': pub_type
             })
         
         return parsed_results
@@ -153,7 +171,7 @@ def search_core(query, year_filter='all', limit=5):
                 'authors': authors,
                 'year': year,
                 'journal': item.get('publisher', ''),
-                'abstract': (item.get('abstract', 'No abstract available') or '')[:500],
+                'abstract': (item.get('abstract') or 'No abstract available')[:500],
                 'citations': item.get('citationCount', 0),
                 'url': item.get('downloadUrl') or item.get('sourceFulltextUrls', ['#'])[0],
                 'source': 'CORE',
@@ -196,7 +214,9 @@ def search_crossref(query, year_filter='all', limit=5):
             pub_date = item.get('published', {}).get('date-parts', [[]])[0]
             year = str(pub_date[0]) if pub_date else ''
             
-            abstract = item.get('abstract', 'No abstract available')
+            abstract = item.get('abstract')
+            if not abstract:
+                abstract = 'No abstract available'
             
             parsed_results.append({
                 'title': item.get('title', [''])[0],
@@ -409,4 +429,5 @@ def home():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
+
 
