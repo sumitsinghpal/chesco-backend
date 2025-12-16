@@ -5,4 +5,4 @@ beautifulsoup4==4.12.2
 gunicorn==21.2.0
 google-search-results==2.4.2
 xmltodict==0.13.0
-feedparser==6.0.10
+feedparser==6.0.11
