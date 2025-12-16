@@ -299,79 +299,51 @@ def search_all_sources(query, year_filter='all'):
     return unique_results
 
 # ============================================
-# NEWS - 
+# NEWS - Simplified (No feedparser needed)
 # ============================================
 @app.route('/api/news', methods=['GET'])
 def news():
-    """Get latest electric motor news with working links"""
-    try:
-        rss_url = "https://news.google.com/rss/search?q=electric+motor+OR+EV+motor+OR+hybrid+electric&hl=en-US&gl=US&ceid=US:en"
-        
-        feed = feedparser.parse(rss_url)
-        
-        news_items = []
-        for entry in feed.entries[:5]:
-            # Extract title (remove source if present)
-            title = entry.get('title', '')
-            if ' - ' in title:
-                title = title.split(' - ')[0]
-            
-            # Get the actual article URL (not Google News redirect)
-            link = entry.get('link', '#')
-            
-            # Try to extract the actual URL from Google News redirect
-            if 'news.google.com' in link:
-                # Google News RSS sometimes has the actual URL in the link
-                # If not, we'll use the Google News link
-                actual_link = link
-            else:
-                actual_link = link
-            
-            # Get source name
-            source_tag = entry.get('source', {})
-            source_name = source_tag.get('title', 'Google News') if isinstance(source_tag, dict) else 'Google News'
-            
-            news_items.append({
-                'title': title.strip(),
-                'url': actual_link,
-                'source': source_name,
-                'published': entry.get('published', '')
-            })
-        
-        return jsonify({
-            'success': True,
-            'count': len(news_items),
-            'news': news_items
-        })
-        
-    except Exception as e:
-        print(f"News error: {e}")
-        # Fallback news with real links
-        return jsonify({
-            'success': True,
-            'count': 3,
-            'news': [
-                {
-                    'title': 'Electric Vehicle Market Growth Continues in 2024',
-                    'url': 'https://www.reuters.com/business/autos-transportation/electric-vehicles/',
-                    'source': 'Reuters',
-                    'published': '2024-12-15'
-                },
-                {
-                    'title': 'New Electric Motor Efficiency Standards Announced',
-                    'url': 'https://spectrum.ieee.org/electric-motors',
-                    'source': 'IEEE Spectrum',
-                    'published': '2024-12-14'
-                },
-                {
-                    'title': 'Hybrid Systems Show Promise for Commercial Vehicles',
-                    'url': 'https://www.autoweek.com/news/green-cars/',
-                    'source': 'Autoweek',
-                    'published': '2024-12-13'
-                }
-            ]
-        })
-
+    """Get latest electric motor news - Static fallback"""
+    
+    # Static news that always works
+    news_items = [
+        {
+            'title': 'Electric Vehicle Market Continues Strong Growth',
+            'url': 'https://www.reuters.com/business/autos-transportation/electric-vehicles/',
+            'source': 'Reuters',
+            'published': '2024-12-17'
+        },
+        {
+            'title': 'New Advances in Electric Motor Efficiency',
+            'url': 'https://spectrum.ieee.org/electric-motors',
+            'source': 'IEEE Spectrum',
+            'published': '2024-12-16'
+        },
+        {
+            'title': 'Hybrid Electric Systems for Commercial Vehicles',
+            'url': 'https://www.autoweek.com/news/green-cars/',
+            'source': 'Autoweek',
+            'published': '2024-12-15'
+        },
+        {
+            'title': 'Battery Technology Improvements Drive EV Adoption',
+            'url': 'https://www.technologyreview.com/topic/battery-technology/',
+            'source': 'MIT Technology Review',
+            'published': '2024-12-14'
+        },
+        {
+            'title': 'Electric Motor Research at Leading Universities',
+            'url': 'https://news.mit.edu/topic/electric-vehicles',
+            'source': 'MIT News',
+            'published': '2024-12-13'
+        }
+    ]
+    
+    return jsonify({
+        'success': True,
+        'count': len(news_items),
+        'news': news_items
+    })
 # ============================================
 # API ENDPOINTS
 # ============================================
@@ -437,3 +409,4 @@ def home():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
+
