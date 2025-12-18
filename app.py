@@ -16,7 +16,7 @@ SERPAPI_KEY = os.environ.get('SERPAPI_KEY', 'e5a02319422293028e05ee9f5a634d9d2c8
 SEMANTIC_SCHOLAR_KEY = os.environ.get('SEMANTIC_SCHOLAR_KEY', 'BOWwvouuaF8LHnmtbWvVL1g7onkJ2Bn4deKTwvdd')
 
 # ============================================
-# SEMANTIC SCHOLAR (FREE - 10,000/month)
+# SEMANTIC SCHOLAR 
 # ============================================
 def search_semantic_scholar(query, year_filter='all', limit=5):
     """Search Semantic Scholar API"""
@@ -81,7 +81,7 @@ def search_semantic_scholar(query, year_filter='all', limit=5):
         return []
 
 # ============================================
-# arXiv (FREE - UNLIMITED)
+# arXiv 
 # ============================================
 def search_arxiv(query, year_filter='all', limit=5):
     """Search arXiv API"""
@@ -319,7 +319,7 @@ def search_all_sources(query, year_filter='all'):
     return unique_results
 
 # ============================================
-# NEWS - Simplified (No feedparser needed)
+# NEWS - Simplified 
 # ============================================
 @app.route('/api/news', methods=['GET'])
 def news():
@@ -429,5 +429,6 @@ def home():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
+
 
 
