@@ -14,7 +14,7 @@ CORS(app)
 # API Keys
 SERPAPI_KEY = os.environ.get('SERPAPI_KEY', 'e5a02319422293028e05ee9f5a634d9d2c83e5b104feb0a5de3619e863a1e783')
 SEMANTIC_SCHOLAR_KEY = os.environ.get('SEMANTIC_SCHOLAR_KEY', 'BOWwvouuaF8LHnmtbWvVL1g7onkJ2Bn4deKTwvdd')
-
+GROQ_API_KEY = os.environ.get('GROQ_API_KEY', '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')
 # ============================================
 # SEMANTIC SCHOLAR 
 # ============================================
@@ -426,9 +426,73 @@ def home():
             'sources': '/api/sources'
         }
     })
+# ============================================
+# CHATBOT ENDPOINT
+# ============================================
+@app.route('/api/chat', methods=['POST'])
+def chat():
+    """Ask CHESCO chatbot endpoint"""
+    try:
+        data = request.get_json()
+        user_message = data.get('message', '')
+        chat_history = data.get('history', [])
+        
+        if not user_message:
+            return jsonify({'success': False, 'error': 'No message provided'}), 400
+        
+        
+        system_prompt = """You are "Ask CHESCO" - a specialized technical assistant for the Center for Hybrid Electric Systems (CHESCO) in Cottbus, Germany.
 
+
+        messages = [{'role': 'system', 'content': system_prompt}]
+        messages.extend(chat_history)
+        messages.append({'role': 'user', 'content': user_message})
+        
+        # Call Groq API
+        headers = {
+            'Authorization': f'Bearer {GROQ_API_KEY}',
+            'Content-Type': 'application/json'
+        }
+        
+        payload = {
+            'model': 'llama-3.3-70b-versatile',
+            'messages': messages,
+            'temperature': 0.7,
+            'max_tokens': 500
+        }
+        
+        response = requests.post(
+            'https://api.groq.com/openai/v1/chat/completions',
+            headers=headers,
+            json=payload,
+            timeout=30
+        )
+        
+        if response.status_code != 200:
+            print(f"Groq API error: {response.status_code} - {response.text}")
+            return jsonify({
+                'success': False,
+                'error': 'AI service temporarily unavailable'
+            }), 500
+        
+        result = response.json()
+        bot_reply = result['choices'][0]['message']['content']
+        
+        return jsonify({
+            'success': True,
+            'reply': bot_reply
+        })
+        
+    except Exception as e:
+        print(f"Chat error: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'Something went wrong. Please try again.'
+        }), 500
+        
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
+
 
 
 
